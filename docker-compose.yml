@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  # Servicio para la base de datos (por ejemplo, MySQL)
+  db:
+    image: mysql:8
+    container_name: MySQL8-uno
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: compratest
+      MYSQL_USER: root
+      MYSQL_PASSWORD: root
+    ports:
+      - "3333:3306"  # Exponer el puerto 3306
+    networks:
+      - app-network
+    volumes:
+      - mysql-data:/var/lib/mysql  # Persistir datos de la base de datos
+
+  # Servicio para la aplicación Spring Boot
+  app:
+    image: mi-app-spring-boot  # Aquí debes poner la imagen de tu aplicación
+    container_name: my-app-springboot-uno
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3333/compratest  # Usamos el nombre del servicio db
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+    depends_on:
+      - db  # Asegura que el contenedor de la base de datos esté listo antes de iniciar la app
+    networks:
+      - app-network
+    ports:
+      - "1818:8080"  # Exponer el puerto 8080 para la app
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  mysql-data:
+    driver: local
